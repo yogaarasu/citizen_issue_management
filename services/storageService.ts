@@ -1,4 +1,5 @@
 import { User, Issue, IssueStatus, UserRole, StatusChange } from '../types';
+import { apiFetch, API_BASE_URL } from '../config/api';
 
 // Storage Keys
 const KEYS = {
@@ -71,17 +72,11 @@ const saveIssues = (issues: Issue[]) => {
 
 export const authenticateUser = async (email: string, password: string): Promise<User | null> => {
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/auth/login', {
+    const user = await apiFetch('/api/auth/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
-    
-    if (response.ok) {
-      const user = await response.json();
-      return user;
-    }
-    return null;
+    return user;
   } catch (error) {
     console.error('Login error:', error);
     return null;
@@ -90,19 +85,11 @@ export const authenticateUser = async (email: string, password: string): Promise
 
 export const createUser = async (userData: Partial<User> & { otp: string }): Promise<User> => {
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/users', {
+    const user = await apiFetch('/api/users', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData)
     });
-    
-    if (response.ok) {
-      const user = await response.json();
-      return user;
-    } else {
-      const error = await response.json();
-      throw new Error(error.message || 'Registration failed');
-    }
+    return user;
   } catch (error) {
     console.error('Registration error:', error);
     throw error;
@@ -111,19 +98,11 @@ export const createUser = async (userData: Partial<User> & { otp: string }): Pro
 
 export const createAdminUser = async (userData: Partial<User>): Promise<User> => {
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/admin/users', {
+    const user = await apiFetch('/api/admin/users', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData)
     });
-    
-    if (response.ok) {
-      const user = await response.json();
-      return user;
-    } else {
-      const error = await response.json();
-      throw new Error(error.message || 'Admin creation failed');
-    }
+    return user;
   } catch (error) {
     console.error('Admin creation error:', error);
     throw error;
@@ -158,22 +137,14 @@ export const deleteUser = async (id: string): Promise<boolean> => {
 
 export const sendOtpToEmail = async (email: string, isRegistration = false): Promise<string> => {
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/auth/send-otp', {
+    const result = await apiFetch('/api/auth/send-otp', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         email, 
         type: isRegistration ? 'registration' : 'password_reset' 
       })
     });
-    
-    if (response.ok) {
-      const result = await response.json();
-      return result.message || 'OTP sent to your email';
-    } else {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to send OTP');
-    }
+    return result.message || 'OTP sent to your email';
   } catch (error) {
     console.error('Send OTP error:', error);
     throw error;
@@ -182,18 +153,11 @@ export const sendOtpToEmail = async (email: string, isRegistration = false): Pro
 
 export const verifyOtp = async (email: string, code: string, type: 'registration' | 'password_reset' = 'registration'): Promise<boolean> => {
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/auth/verify-otp', {
+    await apiFetch('/api/auth/verify-otp', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otp: code, type })
     });
-    
-    if (response.ok) {
-      return true;
-    } else {
-      const error = await response.json();
-      throw new Error(error.message || 'Invalid OTP');
-    }
+    return true;
   } catch (error) {
     console.error('Verify OTP error:', error);
     throw error;
@@ -202,18 +166,11 @@ export const verifyOtp = async (email: string, code: string, type: 'registration
 
 export const resetUserPassword = async (email: string, newPass: string): Promise<boolean> => {
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/auth/reset-password', {
+        await apiFetch('/api/auth/reset-password', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, newPassword: newPass })
         });
-        
-        if (response.ok) {
-            return true;
-        } else {
-            const error = await response.json();
-            throw new Error(error.message || 'Password reset failed');
-        }
+        return true;
     } catch (error) {
         console.error('Reset password error:', error);
         throw error;

@@ -1,0 +1,10 @@
+{
+  "name": "citylink-api",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "mongoose": "^9.1.1",
+    "nodemailer": "^7.0.12",
+    "dotenv": "^17.2.3"
+  }
+}
